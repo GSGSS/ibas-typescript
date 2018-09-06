@@ -17,7 +17,11 @@
     "defalutModuleIcon": "sap-icon://nutrition-activity",
     "useCache": true,
     "cacheDBName": "ibas_cache_ui",
+<<<<<<< HEAD
     "repositoryAddress|BORepositoryShell": "http://localhost:8000/initialfantasy/services/rest/data",
+=======
+    "repositoryAddress|BORepositoryShell": "http://localhost:8080/initialfantasy/services/rest/data",
+>>>>>>> upstream/master
     "repositoryAddress|BORepositoryShellOffline": ".../../test/repository",
     "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository"
   },
