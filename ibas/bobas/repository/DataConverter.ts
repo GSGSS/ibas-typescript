@@ -698,9 +698,7 @@ namespace ibas {
             }
             if (content.startsWith("{[") && content.endsWith("]}")) {
                 content = content.substring(1, content.length - 1);
-                content = strings.trim(content);
-                content = strings.replace(content, "[", "");
-                content = strings.replace(content, "]", "");
+                content = strings.remove(content, " ", "[", "]");
                 let values: string[] = content.split(".");
                 if (values.length === 2) {
                     let criteria: ICriteria = new Criteria();
