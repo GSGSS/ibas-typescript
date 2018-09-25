@@ -398,6 +398,16 @@ namespace ibas {
     }
     /** 业务规则-乘除法推导，增强 */
     export class BusinessRuleMultiplicativeDeductionEx extends BusinessRuleMultiplicativeDeduction {
+        /**
+         *
+         * @param augend 属性-被乘数
+         * @param addend 属性-乘数
+         * @param result 属性-结果
+         */
+        constructor(multiplicand: string, multiplier: string, result: string) {
+            super(multiplicand, multiplier, result);
+            this.affectedProperties.add(this.multiplicand);
+        }
         /** 计算规则 */
         protected compute(context: BusinessRuleContextCommon): void {
             if (strings.isEmpty(context.trigger)) {
