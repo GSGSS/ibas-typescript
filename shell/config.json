@@ -18,13 +18,10 @@
     "disableReportFunctions": true,
     "useCache": true,
     "cacheDBName": "ibas_cache_ui",
-<<<<<<< HEAD
     "repositoryAddress|BORepositoryShell": "http://localhost:8000/initialfantasy/services/rest/data",
-=======
-    "repositoryAddress|BORepositoryShell": "http://localhost:8080/initialfantasy/services/rest/data",
->>>>>>> upstream/master
     "repositoryAddress|BORepositoryShellOffline": ".../../test/repository",
-    "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository"
+    "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository",
+    "wechatRedirectUri": "https://app.avacloud.com.cn/t4v6wfh1/p02/membercenter/test/register/register.html"
   },
   "languages": [
     "zh_CN",
