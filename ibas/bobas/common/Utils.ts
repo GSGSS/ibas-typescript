@@ -113,7 +113,7 @@ namespace ibas {
          * 获取实例的类型名称
          * @param instance 实例
          */
-        export function getTypeName(instance: any): any {
+        export function getTypeName(instance: any): string {
             return getName(getType(instance));
         }
         /**
@@ -456,10 +456,8 @@ namespace ibas {
          * 当前时间
          */
         export function isDate(value: any): boolean {
-            if (typeof value === "object") {
-                if (objects.getName(objects.getType(value)) === "Date") {
-                    return true;
-                }
+            if (value instanceof Date) {
+                return true;
             }
             return false;
         }
@@ -705,6 +703,30 @@ namespace ibas {
             }
             return false;
         }
+        /**
+         * 当前时间是否处于两值间
+         * @param left 左时间（可空）
+         * @param right 右时间（可空）
+         * @param value 比较时间（默认当前时间）
+         */
+        export function within(left: Date, right: Date, value: Date = undefined): boolean {
+            if (!(value instanceof Date)) {
+                value = now();
+            }
+            let result: boolean = true;
+            if (isDate(left)) {
+                if (compare(value, left) > 0) {
+                    result = false;
+                }
+            }
+            if (isDate(right)) {
+                if (compare(value, right) < 0) {
+                    result = false;
+                }
+            }
+            return result;
+        }
+
     }
     /**
      * 数字
@@ -712,13 +734,15 @@ namespace ibas {
     export namespace numbers {
         /** 转为整数 */
         export function toInt(data: any): number {
+            if (typeof data === "number") {
+                data = data.toString();
+            }
             let value: number = parseInt(data, 0);
             if (isNaN(value)) {
                 return 0;
             } else {
                 return value;
             }
-
         }
         /**  数字 */
         export function valueOf(data: any): number {
