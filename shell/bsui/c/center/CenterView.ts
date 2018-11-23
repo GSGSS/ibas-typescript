@@ -644,10 +644,10 @@ namespace shell {
                             } else {
                                 throw new Error(ibas.i18n.prop("shell_invalid_ui"));
                             }
+                            view.id = container.getId();
                             let pageContainer: sap.m.NavContainer = this.pageContainer.addPage(container);
                             setTimeout(() => {
                                 pageContainer.to(container.getId());
-                                view.id = container.getId();
                             }, 100);
                         } else {
                             // 存在页面直接跳转
