@@ -18,8 +18,6 @@ namespace shell {
             export const CONFIG_ITEM_NO_LOGOUT: string = "noLogOut";
             /** 配置项目-功能分组 */
             export const CONFIG_ITEM_GROUP_FUNCTONS: string = "groupFunctions";
-            /** 配置项目-自动激活的功能 */
-            export const CONFIG_ITEM_AUTO_ACTIVETED_FUNCTION: string = "autoFunction";
             /** 配置项目-欢迎页面地址 */
             export const CONFIG_ITEM_WELCOME_PAGE_URL: string = "welcomeUrl";
             /** 配置项目-欢迎页面图片 */
@@ -475,8 +473,6 @@ namespace shell {
                  * @param func 功能
                  */
                 showModuleFunction(module: string, func: ibas.IModuleFunction): void {
-                    /** 自动激活的功能 */
-                    let autoActivetedFunction: string = ibas.config.get(CONFIG_ITEM_AUTO_ACTIVETED_FUNCTION);
                     let nvList: sap.tnt.NavigationList = this.navigation.getItem();
                     let nvItem: sap.tnt.NavigationListItem = null;
                     for (let item of nvList.getItems()) {
@@ -520,13 +516,6 @@ namespace shell {
                             }
                         })
                     );
-                    // 自动激活功能
-                    if (func.id === autoActivetedFunction) {
-                        let duration: number = ibas.config.get(CONFIG_ITEM_STATUS_MESSAGES_DELAY, 2) * 1000;
-                        setTimeout(function (): void {
-                            that.fireViewEvents(that.activateFunctionEvent, func.id);
-                        }, duration > 0 ? duration * 1.2 : 3000);
-                    }
                 }
                 /** 设置忙状态 */
                 busyView(view: ibas.IView, busy: boolean, msg: string): any {
