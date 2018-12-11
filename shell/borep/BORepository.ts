@@ -19,6 +19,12 @@ namespace shell {
                 }
             }
         }
+        /** 配置项目-连接方式 */
+        export const CONFIG_ITEM_CONNECTION_WAY: string = "connectionWay";
+        /** 连接方式-用户密码 */
+        export const CONNECTION_WAY_USER_PASSWORD: string = "USER_PASSWORD";
+        /** 连接方式-用户口令 */
+        export const CONNECTION_WAY_USER_TOKEN: string = "USER_TOKEN";
         /**
          * 业务仓库-壳-远程
          */
@@ -57,7 +63,15 @@ namespace shell {
                     function (cryptoJS: CryptoJS.Hashes): void {
                         let method: string =
                             ibas.strings.format("userConnect?user={0}&password={1}", caller.user, cryptoJS.MD5(caller.password));
-                        remoteRepository.callRemoteMethod(method, undefined, caller);
+                        remoteRepository.callRemoteMethod(method, undefined, {
+                            caller: caller.caller,
+                            onCompleted(opRslt: ibas.IOperationResult<IUser>): void {
+                                if (opRslt.resultCode === 0) {
+                                    ibas.config.set(CONFIG_ITEM_CONNECTION_WAY, CONNECTION_WAY_USER_PASSWORD);
+                                }
+                                caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
+                            }
+                        });
                     }, function (error: RequireError): void {
                         // 加载js库失败
                         let opRslt: ibas.IOperationResult<any> = new ibas.OperationResult();
@@ -76,7 +90,15 @@ namespace shell {
                     throw new Error(ibas.i18n.prop("sys_invalid_parameter", "remoteRepository"));
                 }
                 let method: string = ibas.strings.format("tokenConnect?token={0}", caller.token);
-                remoteRepository.callRemoteMethod(method, undefined, caller);
+                remoteRepository.callRemoteMethod(method, undefined, {
+                    caller: caller.caller,
+                    onCompleted(opRslt: ibas.IOperationResult<IUser>): void {
+                        if (opRslt.resultCode === 0) {
+                            ibas.config.set(CONFIG_ITEM_CONNECTION_WAY, CONNECTION_WAY_USER_TOKEN);
+                        }
+                        caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
+                    }
+                });
             }
 
             /**
@@ -136,6 +158,11 @@ namespace shell {
              * @param caller 调用者
              */
             fetchBOInfos(caller: IBOInfoCaller): void {
+                if (ibas.objects.isNull(caller.boCode)) {
+                    // 没有查询条件，直接返回
+                    caller.onCompleted(new ibas.OperationResult<IBOInfo>());
+                    return;
+                }
                 if (!caller.noCached) {
                     // 优先使用缓存数据
                     let data: DataWrapping = boInfoCache.get(caller.boCode);
@@ -224,8 +251,8 @@ namespace shell {
         class DataWrapping {
             constructor(data: IBOInfo) {
                 this.data = data;
-                if (this.data === null) {
-                    this.time = WAITING_TIME + ibas.dates.now().getTime();
+                if (this.data === null || this.data === EMPTY_BOINFO) {
+                    this.time = (WAITING_TIME * 3) + ibas.dates.now().getTime();
                 } else {
                     this.time = EXPIRED_TIME + ibas.dates.now().getTime();
                 }

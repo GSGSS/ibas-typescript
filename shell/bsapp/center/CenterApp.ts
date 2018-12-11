@@ -7,13 +7,14 @@
  */
 namespace shell {
     export namespace app {
+        /** 配置项目-自动激活的功能 */
+        export const CONFIG_ITEM_AUTO_ACTIVETED_FUNCTION: string = "autoFunction";
         /** 应用-中心 */
         export class CenterApp extends ibas.AbstractApplication<ICenterView> {
             /** 应用标识 */
             static APPLICATION_ID: string = "c1ec9ee1-1138-4358-8323-c579f1e4be37";
             /** 应用名称 */
             static APPLICATION_NAME: string = "shell_app_center";
-
             constructor() {
                 super();
                 this.id = CenterApp.APPLICATION_ID;
@@ -139,6 +140,12 @@ namespace shell {
                             let url: string = window.location.hash.substring(ibas.URL_HASH_SIGN_FUNCTIONS.length);
                             let index: number = url.indexOf("/") < 0 ? url.length : url.indexOf("/");
                             hashFuncId = url.substring(0, index);
+                        }
+                        if (ibas.strings.isEmpty(hashFuncId)) {
+                            hashFuncId = ibas.config.get(CONFIG_ITEM_AUTO_ACTIVETED_FUNCTION);
+                            if (!ibas.strings.isEmpty(hashFuncId)) {
+                                ibas.urls.changeHash(ibas.strings.format("{0}{1}", ibas.URL_HASH_SIGN_FUNCTIONS, hashFuncId));
+                            }
                         }
                         // 权限加载成功，加载模块
                         consoleManager.load({
