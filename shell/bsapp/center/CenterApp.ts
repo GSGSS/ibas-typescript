@@ -175,9 +175,11 @@ namespace shell {
                                             // 注册功能事件响应
                                             that.functionMap.set(func.id, func);
                                             that.view.showModuleFunction(console.name, func);
-                                            // 如当前模块包含Hash指向的功能,激活
                                             if (ibas.strings.equals(func.id, hashFuncId)) {
-                                                ibas.urls.changeHash(window.location.hash);
+                                                // 如当前模块包含Hash指向的功能,激活
+                                                setTimeout(() => {
+                                                    ibas.urls.changeHash(window.location.hash);
+                                                }, 1500);
                                             }
                                         }
                                         // 处理应用
@@ -499,6 +501,10 @@ namespace shell {
                                 if (ibas.strings.isEmpty(module.console)) {
                                     module.console = "Console";
                                 }
+                                if (module.console.indexOf(".") < 0) {
+                                    // 没有命名空间，补全
+                                    module.console = ibas.strings.format("{0}.app.{1}", module.name.toLowerCase(), module.console);
+                                }
                                 // 模块require函数
                                 let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
                                 let require: Require = ibas.requires.create({
@@ -518,51 +524,40 @@ namespace shell {
                                     module.index + (minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
                                 ], function (): void {
                                     try {
-                                        // 加载模块的控制台（可能多个）
-                                        for (let item of module.console.split(ibas.DATA_SEPARATOR)) {
-                                            if (ibas.strings.isEmpty(item)) {
-                                                continue;
+                                        let consoleClass: any = window;
+                                        for (let tmp of module.console.split(".")) {
+                                            if (ibas.objects.isNull(consoleClass)) {
+                                                break;
                                             }
-                                            item = item.trim();
-                                            if (item.indexOf(".") < 0) {
-                                                // 没有命名空间，补全
-                                                item = ibas.strings.format("{0}.app.{1}", module.name.toLowerCase(), item);
-                                            }
-                                            let consoleClass: any = window;
-                                            for (let tmp of item.split(".")) {
-                                                if (ibas.objects.isNull(consoleClass)) {
-                                                    break;
-                                                }
-                                                consoleClass = consoleClass[tmp];
-                                            }
-                                            if (!ibas.objects.isAssignableFrom(consoleClass, ibas.ModuleConsole)) {
-                                                throw new TypeError(item);
-                                            }
-                                            let console: ibas.ModuleConsole = new consoleClass();
-                                            if (!(ibas.objects.instanceOf(console, ibas.ModuleConsole))) {
-                                                throw new ReferenceError(item);
-                                            }
-                                            // 设置模块名称
-                                            console.module = module.name.toLowerCase();
-                                            // 设置模块根地址
-                                            console.rootUrl = module.address;
-                                            // 设置仓库地址
-                                            if (!ibas.strings.isEmpty(module.repository)) {
-                                                let done: boolean = console.setRepository(module.repository);
-                                                // 注册模块业务仓库默认地址，创建实例时默认取此地址
-                                                if (!ibas.objects.isNull(console.name) && done) {
-                                                    module.repository = ibas.urls.normalize(module.repository);
-                                                    let repositoryName: string = ibas.strings.format(ibas.MODULE_REPOSITORY_NAME_TEMPLATE, console.name);
-                                                    let configName: string = ibas.strings.format(
-                                                        ibas.CONFIG_ITEM_TEMPLATE_REMOTE_REPOSITORY_ADDRESS, repositoryName);
-                                                    ibas.config.set(configName, module.repository);
-                                                    ibas.logger.log(ibas.emMessageLevel.DEBUG,
-                                                        "repository: register [{0}]'s default address [{1}].", repositoryName, module.repository);
-                                                }
-                                            }
-                                            that[PROPERTY_CONSOLES].add(console);
-                                            loader.onCompleted(console);
+                                            consoleClass = consoleClass[tmp];
                                         }
+                                        if (!ibas.objects.isAssignableFrom(consoleClass, ibas.ModuleConsole)) {
+                                            throw new TypeError(ibas.i18n.prop("shell_invalid_module_console", module.console));
+                                        }
+                                        let console: ibas.ModuleConsole = new consoleClass();
+                                        if (!(ibas.objects.instanceOf(console, ibas.ModuleConsole))) {
+                                            throw new ReferenceError(module.console);
+                                        }
+                                        // 设置模块名称
+                                        console.module = module.name.toLowerCase();
+                                        // 设置模块根地址
+                                        console.rootUrl = module.address;
+                                        // 设置仓库地址
+                                        if (!ibas.strings.isEmpty(module.repository)) {
+                                            let done: boolean = console.setRepository(module.repository);
+                                            // 注册模块业务仓库默认地址，创建实例时默认取此地址
+                                            if (!ibas.objects.isNull(console.name) && done) {
+                                                module.repository = ibas.urls.normalize(module.repository);
+                                                let repositoryName: string = ibas.strings.format(ibas.MODULE_REPOSITORY_NAME_TEMPLATE, console.name);
+                                                let configName: string = ibas.strings.format(
+                                                    ibas.CONFIG_ITEM_TEMPLATE_REMOTE_REPOSITORY_ADDRESS, repositoryName);
+                                                ibas.config.set(configName, module.repository);
+                                                ibas.logger.log(ibas.emMessageLevel.DEBUG,
+                                                    "repository: register [{0}]'s default address [{1}].", repositoryName, module.repository);
+                                            }
+                                        }
+                                        that[PROPERTY_CONSOLES].add(console);
+                                        loader.onCompleted(console);
                                     } catch (error) {
                                         loader.onStatusMessage(ibas.emMessageType.ERROR, error.message);
                                     }
