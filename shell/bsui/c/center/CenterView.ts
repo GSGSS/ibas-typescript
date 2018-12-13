@@ -189,11 +189,24 @@ namespace shell {
                         afterNavigate(): void {
                             let page: any = this.getCurrentPage();
                             if (page instanceof sap.m.Page) {
-                                let title: any = sap.ui.getCore().byId(UI_MAIN_TITLE);
-                                if (title instanceof sap.m.Title && title.getVisible()) {
-                                    title.setText(page.getTitle());
-                                } else {
-                                    title.setText(null);
+                                if (page.getShowHeader() === false) {
+                                    // 全屏模式
+                                    let title: any = sap.ui.getCore().byId(UI_MAIN_TITLE);
+                                    if (title instanceof sap.m.Title) {
+                                        title.setVisible(true);
+                                        title.setText(page.getTitle());
+                                    }
+                                    let button: any = sap.ui.getCore().byId(UI_MAIN_BACK);
+                                    if (button instanceof sap.m.Button) {
+                                        button.setVisible(true);
+                                    }
+                                    if (mainPage.getSideExpanded() === false && ibas.config.get(ibas.CONFIG_ITEM_PLANTFORM) === ibas.emPlantform.PHONE) {
+                                        // 手机模式，全屏时隐藏menu按钮
+                                        let button: any = sap.ui.getCore().byId(UI_MAIN_MENU);
+                                        if (button instanceof sap.m.Button) {
+                                            button.setVisible(false);
+                                        }
+                                    }
                                 }
                                 // 切换hash值
                                 for (let item of page.getCustomData()) {
@@ -208,12 +221,16 @@ namespace shell {
                                     }
                                 }
                             } else if (page instanceof sap.m.MessagePage) {
+                                let button: any = sap.ui.getCore().byId(UI_MAIN_MENU);
+                                if (button instanceof sap.m.Button) {
+                                    button.setVisible(true);
+                                }
                                 let title: any = sap.ui.getCore().byId(UI_MAIN_TITLE);
                                 if (title instanceof sap.m.Title) {
                                     title.setVisible(false);
                                     title.setText(null);
                                 }
-                                let button: any = sap.ui.getCore().byId(UI_MAIN_BACK);
+                                button = sap.ui.getCore().byId(UI_MAIN_BACK);
                                 if (button instanceof sap.m.Button) {
                                     button.setVisible(false);
                                 }
@@ -271,18 +288,6 @@ namespace shell {
                     if (fullScreen) {
                         // 全屏
                         page.setShowHeader(false);
-                        let title: any = sap.ui.getCore().byId(UI_MAIN_TITLE);
-                        if (title instanceof sap.m.Title) {
-                            if (!title.getVisible()) {
-                                title.setVisible(true);
-                            }
-                        }
-                        let button: any = sap.ui.getCore().byId(UI_MAIN_BACK);
-                        if (button instanceof sap.m.Button) {
-                            if (!button.getVisible()) {
-                                button.setVisible(true);
-                            }
-                        }
                     } else {
                         // 非全屏
                         // 退出钮
