@@ -612,7 +612,9 @@ namespace shell {
                             moduleLoader.modules = userModules;
                             moduleLoader.onUncaughtError = function (event: ErrorEvent): void {
                                 if (event.error instanceof ReferenceError && !ibas.objects.isNull(moduleLoader.modules)) {
-                                    let module: bo.IUserModule = moduleLoader.modules.firstOrDefault(c => ibas.strings.isWith(event.filename, c.address, c.index + ".js"));
+                                    let module: bo.IUserModule = moduleLoader.modules.firstOrDefault(c =>
+                                        ibas.strings.isWith(event.filename, undefined, c.address + c.index + ".js")
+                                    );
                                     if (!ibas.objects.isNull(module)) {
                                         ibas.requires.create({
                                             context: ibas.requires.naming(module.name)
