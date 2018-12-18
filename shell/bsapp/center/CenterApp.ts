@@ -513,10 +513,11 @@ namespace shell {
                         } catch (error) {
                             onStatusMessage(ibas.emMessageType.ERROR, error.message);
                         } finally {
+                            ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] was loaded.", module.name, module.console);
                             if (module === that.modules.lastOrDefault() || module === that.faildModules.lastOrDefault()) {
                                 // 最后模块加载，重新加载失败的
                                 for (let item of moduleLoader.faildModules) {
-                                    ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}] begin to reload.", item.name);
+                                    ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] begin to reload.", item.name, item.console);
                                     let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
                                     ibas.requires.require({
                                         context: ibas.requires.naming(item.name),
@@ -621,7 +622,7 @@ namespace shell {
                                         }).undef(module.index);
                                         if (moduleLoader.faildModules.firstOrDefault(c => c === module) === null) {
                                             moduleLoader.faildModules.add(module);
-                                            ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}] will be reload.", module.name, module.repository);
+                                            ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] will be reload.", module.name, module.console);
                                         }
                                     }
                                 }
