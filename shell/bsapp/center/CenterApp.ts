@@ -633,8 +633,8 @@ namespace shell {
                                             if (moduleLoader.faildModules.contain(item)) {
                                                 continue;
                                             }
-                                            moduleLoader.faildModules.add(module);
-                                            ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] will be reload.", module.name, module.console);
+                                            moduleLoader.faildModules.add(item);
+                                            ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] will be reload.", item.name, item.console);
                                         }
                                         // 移出失败模块
                                         for (let item of moduleLoader.faildModules) {
