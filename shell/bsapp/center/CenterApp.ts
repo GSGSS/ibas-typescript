@@ -618,13 +618,27 @@ namespace shell {
                                         ibas.strings.isWith(event.filename, undefined, c.address + c.index + ".js")
                                     );
                                     if (!ibas.objects.isNull(module)) {
+                                        // 卸载加载失败模块
                                         ibas.requires.create({
                                             context: ibas.requires.naming(module.name)
                                         }).undef(module.index);
-                                        if (moduleLoader.faildModules.firstOrDefault(c => c === module) === null) {
+                                        // 添加失败清单
+                                        for (let item of moduleLoader.modules) {
+                                            if (item.name !== module.name) {
+                                                continue;
+                                            }
+                                            if (item.index !== module.index) {
+                                                continue;
+                                            }
+                                            if (moduleLoader.faildModules.contain(item)) {
+                                                continue;
+                                            }
                                             moduleLoader.faildModules.add(module);
-                                            moduleLoader.modules.remove(module);
                                             ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] will be reload.", module.name, module.console);
+                                        }
+                                        // 移出失败模块
+                                        for (let item of moduleLoader.faildModules) {
+                                            moduleLoader.modules.remove(item);
                                         }
                                     }
                                 }
