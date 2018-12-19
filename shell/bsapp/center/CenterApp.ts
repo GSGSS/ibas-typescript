@@ -513,36 +513,37 @@ namespace shell {
                         } catch (error) {
                             onStatusMessage(ibas.emMessageType.ERROR, error.message);
                         } finally {
+                            that.modules.remove(module);
                             ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] was loaded.", module.name, module.console);
-                            if (module === that.modules.lastOrDefault() || module === that.faildModules.lastOrDefault()) {
-                                // 最后模块加载，重新加载失败的
-                                for (let item of moduleLoader.faildModules) {
-                                    ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] begin to reload.", item.name, item.console);
-                                    let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
-                                    ibas.requires.require({
-                                        context: ibas.requires.naming(item.name),
-                                        baseUrl: item.address,
-                                        map: {
-                                            "*": {
-                                                "css": ibas.strings.format("{0}/3rdparty/require-css{1}.js",
-                                                    ibas.urls.rootUrl("/ibas/index"),
-                                                    (minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
-                                                )
-                                            }
-                                        },
-                                        waitSeconds: ibas.config.get(ibas.requires.CONFIG_ITEM_WAIT_SECONDS, 10),
-                                    }, item.index + (minLibrary ? ibas.SIGN_MIN_LIBRARY : ""));
-                                }
-                                for (let item of that.faildModules) {
-                                    if (item.id === module.id) {
-                                        that.faildModules.remove(item);
-                                    }
-                                }
+                            if (that.modules.length === 0) {
                                 if (that.faildModules.length === 0) {
                                     that.release();
+                                } else {
+                                    for (let item of that.faildModules) {
+                                        that.modules.add(item);
+                                    }
+                                    for (let item of moduleLoader.modules) {
+                                        ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] begin to reload.", item.name, item.console);
+                                        let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
+                                        ibas.requires.require({
+                                            context: ibas.requires.naming(item.name),
+                                            baseUrl: item.address,
+                                            map: {
+                                                "*": {
+                                                    "css": ibas.strings.format("{0}/3rdparty/require-css{1}.js",
+                                                        ibas.urls.rootUrl("/ibas/index"),
+                                                        (minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
+                                                    )
+                                                }
+                                            },
+                                            waitSeconds: ibas.config.get(ibas.requires.CONFIG_ITEM_WAIT_SECONDS, 10),
+                                        }, item.index + (minLibrary ? ibas.SIGN_MIN_LIBRARY : ""));
+                                    }
                                 }
                             }
                         }
+                    }, function (): void {
+                        that.modules.remove(module);
                     });
                 }
             }
@@ -622,6 +623,7 @@ namespace shell {
                                         }).undef(module.index);
                                         if (moduleLoader.faildModules.firstOrDefault(c => c === module) === null) {
                                             moduleLoader.faildModules.add(module);
+                                            moduleLoader.modules.remove(module);
                                             ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] will be reload.", module.name, module.console);
                                         }
                                     }
