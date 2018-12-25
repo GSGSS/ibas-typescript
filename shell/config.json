@@ -20,7 +20,7 @@
     "defalutServiceIcon": "sap-icon://e-care",
     "defalutModuleIcon": "sap-icon://nutrition-activity",
     "disableReportFunctions": true,
-    "repositoryAddress|BORepositoryShell": "https://wechat.avacloud.com.cn/initialfantasy/services/rest/data",
+    "repositoryAddress|BORepositoryShell": "http://localhost:8000/initialfantasy/services/rest/data",
     "repositoryAddress|BORepositoryShellOffline": ".../../test/repository",
     "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository",
     "wechatRedirectUri": "https://app.avacloud.com.cn/2ir2vuf1/p02/membercenter/test/register/register.html"

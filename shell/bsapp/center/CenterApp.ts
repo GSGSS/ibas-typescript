@@ -446,7 +446,9 @@ namespace shell {
             constructor() {
                 this.consoles = new ibas.ArrayList<ibas.IModule>();
                 this.faildModules = new ibas.ArrayList<bo.IUserModule>();
+                this.minLibrary = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
             }
+            minLibrary: boolean;
             modules: ibas.IList<bo.IUserModule>;
             faildModules: ibas.IList<bo.IUserModule>;
             consoles: ibas.IList<ibas.IModule>;
@@ -461,7 +463,6 @@ namespace shell {
                         ibas.i18n.prop("shell_initialize_module", ibas.strings.isEmpty(module.name) ? module.id : module.name)
                     );
                     // 模块require函数
-                    let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
                     ibas.requires.require({
                         context: ibas.requires.naming(module.name),
                         baseUrl: module.address,
@@ -469,12 +470,12 @@ namespace shell {
                             "*": {
                                 "css": ibas.strings.format("{0}/3rdparty/require-css{1}.js",
                                     ibas.urls.rootUrl("/ibas/index"),
-                                    (minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
+                                    (this.minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
                                 )
                             }
                         },
                         waitSeconds: ibas.config.get(ibas.requires.CONFIG_ITEM_WAIT_SECONDS, 10),
-                    }, module.index + (minLibrary ? ibas.SIGN_MIN_LIBRARY : ""), function (): void {
+                    }, module.index + (this.minLibrary ? ibas.SIGN_MIN_LIBRARY : ""), function (): void {
                         try {
                             let consoleClass: any = window;
                             for (let tmp of module.console.split(".")) {
@@ -509,7 +510,7 @@ namespace shell {
                                 }
                             }
                             onCompleted(console);
-                            moduleLoader.consoles.add(console);
+                            that.consoles.add(console);
                         } catch (error) {
                             onStatusMessage(ibas.emMessageType.ERROR, error.message);
                         } finally {
@@ -522,9 +523,8 @@ namespace shell {
                                     for (let item of that.faildModules) {
                                         that.modules.add(item);
                                     }
-                                    for (let item of moduleLoader.modules) {
+                                    for (let item of that.modules) {
                                         ibas.logger.log(ibas.emMessageLevel.DEBUG, "center: module: [{0}|{1}] begin to reload.", item.name, item.console);
-                                        let minLibrary: boolean = ibas.config.get(ibas.CONFIG_ITEM_USE_MINIMUM_LIBRARY, false);
                                         ibas.requires.require({
                                             context: ibas.requires.naming(item.name),
                                             baseUrl: item.address,
@@ -532,12 +532,12 @@ namespace shell {
                                                 "*": {
                                                     "css": ibas.strings.format("{0}/3rdparty/require-css{1}.js",
                                                         ibas.urls.rootUrl("/ibas/index"),
-                                                        (minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
+                                                        (that.minLibrary ? ibas.SIGN_MIN_LIBRARY : "")
                                                     )
                                                 }
                                             },
                                             waitSeconds: ibas.config.get(ibas.requires.CONFIG_ITEM_WAIT_SECONDS, 10),
-                                        }, item.index + (minLibrary ? ibas.SIGN_MIN_LIBRARY : ""));
+                                        }, item.index + (that.minLibrary ? ibas.SIGN_MIN_LIBRARY : ""));
                                     }
                                 }
                             }
@@ -614,14 +614,15 @@ namespace shell {
                             moduleLoader.modules = userModules;
                             moduleLoader.onUncaughtError = function (event: ErrorEvent): void {
                                 if (event.error instanceof ReferenceError && !ibas.objects.isNull(moduleLoader.modules)) {
+                                    let urlIndex: string = event.filename.split("?")[0];
                                     let module: bo.IUserModule = moduleLoader.modules.firstOrDefault(c =>
-                                        ibas.strings.isWith(event.filename, undefined, c.address + c.index + ".js")
+                                        ibas.strings.isWith(urlIndex, ibas.urls.normalize(c.address + c.index), ".js")
                                     );
                                     if (!ibas.objects.isNull(module)) {
                                         // 卸载加载失败模块
                                         ibas.requires.create({
                                             context: ibas.requires.naming(module.name)
-                                        }).undef(module.index);
+                                        }).undef(module.index + (moduleLoader.minLibrary ? ibas.SIGN_MIN_LIBRARY : ""));
                                         // 添加失败清单
                                         for (let item of moduleLoader.modules) {
                                             if (item.name !== module.name) {
