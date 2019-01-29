@@ -12,14 +12,18 @@
     "fullScreen|TABLET": true,
     "queryPanelConfigurable|TABLET": false,
     "queryPanelSelectable|TABLET": false,
+    "fullScreen|PHONE": true,
+    "queryPanelConfigurable|PHONE": false,
+    "queryPanelSelectable|PHONE": false,
     "defaultUser": "admin",
     "defaultPassword": "1q2w3e",
     "defalutServiceIcon": "sap-icon://e-care",
     "defalutModuleIcon": "sap-icon://nutrition-activity",
     "disableReportFunctions": true,
-    "repositoryAddress|BORepositoryShell": "http://localhost:8080/initialfantasy/services/rest/data",
+    "repositoryAddress|BORepositoryShell": "http://localhost:8000/initialfantasy/services/rest/data",
     "repositoryAddress|BORepositoryShellOffline": ".../../test/repository",
-    "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository"
+    "repositoryAddress|BORepositoryTrainingTestingOffline": ".../../test/repository",
+    "wechatRedirectUri": "https://app.avacloud.com.cn/2ir2vuf1/p02/membercenter/test/register/register.html"
   },
   "languages": [
     "zh_CN",

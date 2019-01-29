@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Vstore</title>
+    <script type="text/javascript">
+        var mainTitle = null;
+        var intervalTitle = setInterval(() => {
+            if (window.frames["ibas-app"]) {
+                if (mainTitle) {
+                    if (window.frames["ibas-app"].document.title !== mainTitle) {
+                        clearInterval(intervalTitle);
+                        mainTitle = undefined;
+                        intervalTitle = undefined;
+                        window.document.title = window.frames["ibas-app"].document.title
+                    }
+                } else {
+                    mainTitle = window.frames["ibas-app"].document.title;
+                }
+            }
+        }, 1000);
+    </script>
+</head>
+<frameset>
+    <frame name="ibas-app" src="index.html"></frame>
+</frameset>
+
+</html>

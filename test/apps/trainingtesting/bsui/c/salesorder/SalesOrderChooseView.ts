@@ -105,8 +105,8 @@ namespace trainingtesting {
                         type: sap.m.DialogType.Standard,
                         state: sap.ui.core.ValueState.None,
                         stretchOnPhone: true,
-                        horizontalScrolling: true,
-                        verticalScrolling: true,
+                        horizontalScrolling: false,
+                        verticalScrolling: false,
                         content: [this.table],
                         buttons: [
                             new sap.m.Button("", {
