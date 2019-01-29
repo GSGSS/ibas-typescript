@@ -119,7 +119,7 @@ namespace shell {
                                         showHeader: false,
                                         placement: sap.m.PlacementType.Bottom,
                                         content: [
-                                            new sap.m.Button({
+                                            new sap.m.Button("", {
                                                 text: ibas.i18n.prop("shell_help"),
                                                 type: sap.m.ButtonType.Transparent,
                                                 icon: "sap-icon://sys-help",
@@ -128,7 +128,7 @@ namespace shell {
                                                     popover.close();
                                                 }
                                             }),
-                                            new sap.m.Button({
+                                            new sap.m.Button("", {
                                                 text: ibas.i18n.prop("shell_about"),
                                                 type: sap.m.ButtonType.Transparent,
                                                 icon: "sap-icon://world",
@@ -137,7 +137,7 @@ namespace shell {
                                                     popover.close();
                                                 }
                                             }),
-                                            new sap.m.Button({
+                                            new sap.m.Button("", {
                                                 text: ibas.i18n.prop("shell_logout"),
                                                 type: sap.m.ButtonType.Transparent,
                                                 icon: "sap-icon://system-exit",
