@@ -113,6 +113,7 @@ namespace shell {
                     appWelcome = new WelcomeApp();
                     appWelcome.viewShower = this.viewShower;
                     appWelcome.navigation = this.navigation;
+                    appWelcome.description = ibas.strings.format("{0} - {1}", appWelcome.description, user.name ? user.name : user.code);
                     appWelcome.run();
                 }
                 this.view.showStatusMessage(

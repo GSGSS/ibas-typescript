@@ -32,7 +32,7 @@ namespace shell {
                             })
                         ],
                         endButton: new sap.m.Button("", {
-                            text: ibas.i18n.prop("shell_exit"),
+                            text: ibas.i18n.prop("shell_close"),
                             type: sap.m.ButtonType.Transparent,
                             enabled: false,
                             press: () => {
@@ -76,14 +76,18 @@ namespace shell {
                             text: content,
                         }));
                     } else {
-                        this.page.addContent(new sap.m.MessagePage("", {
+                        let msgPage: sap.m.MessagePage = new sap.m.MessagePage("", {
                             icon: "sap-icon://fob-watch",
-                            text: ibas.i18n.prop("shell_waiting"),
+                            text: ibas.i18n.prop("shell_system_preparing"),
                             description: "",
                             showHeader: false,
-                            height: "100%",
-                            width: "100%",
-                        }));
+                        });
+                        this.page.addContent(msgPage);
+                        setTimeout(() => {
+                            if (this.isDisplayed === true && msgPage.getVisible() === true) {
+                                msgPage.setText(ibas.i18n.prop("shell_system_prepared"));
+                            }
+                        }, 3000);
                     }
                 }
             }

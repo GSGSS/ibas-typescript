@@ -59,6 +59,8 @@ namespace shell {
                                 if (pView instanceof ibas.View) {
                                     pView.isDisplayed = true;
                                 }
+                                // 界面显示后，没有触发导航事件
+                                (<any>app).fireAfterNavigate(undefined);
                                 pView = null;
                             }
                         });

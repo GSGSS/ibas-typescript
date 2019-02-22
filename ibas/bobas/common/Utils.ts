@@ -362,7 +362,7 @@ namespace ibas {
          * @param char 补齐字符
          */
         export function fill(value: any, size: number, char: string): string {
-            let newValue: string = value.toString();
+            let newValue: string = String(value);
             for (let index: number = newValue.length; index < size; index++) {
                 newValue = char + newValue;
             }
@@ -443,6 +443,16 @@ namespace ibas {
             if (objects.isNull(type) || objects.isNull(value)) {
                 return undefined;
             }
+            if (typeof value === "string") {
+                // 字符串，首先尝试转为数值
+                if (numbers.isNumber(value)) {
+                    value = ibas.numbers.toInt(value);
+                    // 判断是否存在值
+                    if (!ibas.objects.isNull(type[value])) {
+                        return value;
+                    }
+                }
+            }
             for (let item in type) {
                 if (typeof item === typeof value) {
                     if (item.toUpperCase() === value.toUpperCase()) {
@@ -496,7 +506,7 @@ namespace ibas {
      */
     export namespace dates {
         /**
-         * 当前时间
+         * 是否日期类型
          */
         export function isDate(value: any): boolean {
             if (value instanceof Date) {
@@ -505,28 +515,34 @@ namespace ibas {
             return false;
         }
         /**
-         * 当前时间
+         * 当前时间（含时间）
          */
         export function now(): Date {
             return new Date(Date.now());
         }
         /**
-         * 当前日期
+         * 当前日期（不含时间）
          */
         export function today(): Date {
             let date: Date = now();
             // 月份从0开始
             return valueOf(strings.format("{0}-{1}-{2}", date.getFullYear(), date.getMonth() + 1, date.getDate()));
         }
-
+        /**
+         * 时间（1155）
+         */
+        export function time(): number {
+            let date: Date = now();
+            let hour: number = date.getHours();
+            let minute: number = date.getMinutes();
+            return hour * 100 + minute;
+        }
         /**
          * 解析日期，支持以下格式
-         * yyyy/MM/dd'T'HH:mm:ss
-         * yyyy-MM-dd'T'HH:mm:ss
-         * yyyy/MM/ddTHH:mm:ss
-         * yyyy-MM-ddTHH:mm:ss
          * yyyy-MM-dd HH:mm:ss
+         * yyyy-MM-ddTHH:mm:ss
          * yyyy/MM/dd HH:mm:ss
+         * yyyy/MM/ddTHH:mm:ss
          * @param value 日期字符
          * @returns 日期
          */
@@ -534,58 +550,22 @@ namespace ibas {
             if (objects.isNull(value)) {
                 return undefined;
             }
-            if (<any>value instanceof Date) {
-                return <Date><any>value;
+            if (value instanceof Date) {
+                return value;
             }
             if (typeof value === "number") {
                 return new Date(value);
             }
             if (typeof value === "string") {
-                if (value.length === 0) {
-                    return undefined;
+                if (value.indexOf("/") > 0) {
+                    strings.replace(value, "/", "-");
                 }
-                let spTime: string = "T";
-                if (value.indexOf("'T'") > 0) {
-                    spTime = "'T'";
-                } else if (value.indexOf(" ") > 0) {
-                    spTime = " ";
-                }
-                let tmps: string[] = value.split(spTime);
-                let date: string = tmps[0];
-                let time: string = tmps[1];
-                let year: number = 0, month: number = 0, day: number = 0, hour: number = 0, minute: number = 0, second: number = 0;
-                if (!objects.isNull(date)) {
-                    let spChar: string = "-";
-                    if (date.indexOf("/") > 0) {
-                        spChar = "/";
-                    }
-                    tmps = date.split(spChar);
-                    if (!objects.isNull(tmps[0])) {
-                        year = Number.parseInt(tmps[0], 0);
-                    }
-                    if (!objects.isNull(tmps[1])) {
-                        month = Number.parseInt(tmps[1], 0);
-                    }
-                    if (!objects.isNull(tmps[2])) {
-                        day = Number.parseInt(tmps[2], 0);
-                    }
-                }
-                if (!objects.isNull(time)) {
-                    let spChar: string = ":";
-                    tmps = time.split(spChar);
-                    if (!objects.isNull(tmps[0])) {
-                        hour = Number.parseInt(tmps[0], 0);
-                    }
-                    if (!objects.isNull(tmps[1])) {
-                        minute = Number.parseInt(tmps[1], 0);
-                    }
-                    if (!objects.isNull(tmps[2])) {
-                        second = Number.parseInt(tmps[2], 0);
-                    }
-                }
-                // 月份从0开始
-                return new Date(year, month - 1, day, hour, minute, second);
             }
+            let time: number = Date.parse(value);
+            if (!isNaN(time)) {
+                return new Date(time);
+            }
+            return null;
         }
 
         const DATA_SEPARATOR: string = "-";
@@ -828,6 +808,24 @@ namespace ibas {
                 }
             }
             return value;
+        }
+        /**
+         * 是否为数字字符串
+         * @param value 值
+         */
+        export function isNumber(value: any): boolean {
+            if (typeof value === "number") {
+                return true;
+            } else if (typeof value === "string") {
+                // 非负浮点数
+                let regPos: RegExp = /^\d+(\.\d+)?$/;
+                // 负浮点数
+                let regNeg: RegExp = /^(-(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*)))$/;
+                if (regPos.test(value) || regNeg.test(value)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
