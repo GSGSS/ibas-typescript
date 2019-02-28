@@ -74,6 +74,11 @@ namespace ibas {
          * @param pars 格式内容
          */
         protected log(message: string, ...pars: any[]): void;
+        /**
+         * 记录消息
+         * @param error 错误
+         */
+        protected log(error: Error): void;
         protected log(): void {
             if (objects.isNull(this[PROPERTY_LOGGER])) {
                 // 未提供则使用默认
